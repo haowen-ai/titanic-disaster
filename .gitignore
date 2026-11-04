@@ -1,0 +1,20 @@
+# Data (download from Kaggle, never commit)
+src/data/*
+!src/data/.gitkeep
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
