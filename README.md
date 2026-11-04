@@ -111,7 +111,7 @@ Both scripts print the same steps:
 | Accuracy on the 80% used to fit | 0.837 | 0.839 |
 | Holdout accuracy (20%) | 0.838 | 0.843 |
 | Training accuracy (all 891 rows) | 0.838 | 0.838 |
-| Test passengers predicted to survive | 168 of 418 | 168 of 418 |
+| Test passengers predicted to survive | 168 of 418 | 170 of 418 |
 
 The two holdout sets are not the same passengers (each language splits with its own random number generator), so the numbers differ slightly.
 
