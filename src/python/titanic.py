@@ -16,6 +16,7 @@ from sklearn.preprocessing import StandardScaler
 # Data sits next to this folder: src/data. Same layout in Docker and locally.
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 SEED = 42
+SUBMISSION_FILE = "submission_python.csv"
 TITLE_MAP = {"Mlle": "Miss", "Ms": "Miss", "Mme": "Mrs"}
 KEEP_TITLES = {"Mr", "Mrs", "Miss", "Master"}
 CATEGORICAL = ["Pclass", "Sex", "Embarked", "Title"]
@@ -192,8 +193,12 @@ def main():
     preds = model.predict(X_test)
     print(f"Made {len(preds)} predictions; predicted survivors: {int(preds.sum())} "
           f"({preds.mean():.3f} of test passengers)")
+    submission = pd.DataFrame({"PassengerId": test["PassengerId"], "Survived": preds})
     print("First 10 predictions:")
-    print(pd.DataFrame({"PassengerId": test["PassengerId"], "Survived": preds}).head(10).to_string(index=False))
+    print(submission.head(10).to_string(index=False))
+    # Same format Kaggle asks for: PassengerId,Survived
+    submission.to_csv(DATA_DIR / SUBMISSION_FILE, index=False)
+    print(f"Saved all {len(submission)} predictions to src/data/{SUBMISSION_FILE}")
 
     section("Step 7: test accuracy")
     if "Survived" in test.columns:
@@ -201,8 +206,8 @@ def main():
     else:
         print("test.csv has no Survived column (Kaggle keeps the answers), so test accuracy "
               "cannot be computed here.")
-        print("Use the holdout accuracy from Step 4 as the estimate; the real test score "
-              "comes from submitting predictions to Kaggle.")
+        print("Use the holdout accuracy from Step 4 as the estimate. The real test score "
+              f"comes from uploading src/data/{SUBMISSION_FILE} to Kaggle (score in README).")
 
 
 if __name__ == "__main__":

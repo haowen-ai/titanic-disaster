@@ -6,6 +6,7 @@ suppressPackageStartupMessages(library(dplyr))
 options(width = 120)
 
 seed <- 42
+submission_file <- "submission_r.csv"
 keep_titles <- c("Mr", "Mrs", "Miss", "Master")
 title_map <- c(Mlle = "Miss", Ms = "Miss", Mme = "Mrs")
 # Sex is left out: Title already carries most of it (Mr/Master are men,
@@ -174,8 +175,12 @@ main <- function() {
   predicted <- as.integer(predict(model, newdata = test_clean, type = "response") > 0.5)
   cat(sprintf("Made %d predictions; predicted survivors: %d (%.3f of test passengers)\n",
               length(predicted), sum(predicted), mean(predicted)))
+  submission <- data.frame(PassengerId = test$PassengerId, Survived = predicted)
   cat("First 10 predictions:\n")
-  print(head(data.frame(PassengerId = test$PassengerId, Survived = predicted), 10), row.names = FALSE)
+  print(head(submission, 10), row.names = FALSE)
+  # Same format Kaggle asks for: PassengerId,Survived
+  write.csv(submission, file.path(data_dir, submission_file), row.names = FALSE, quote = FALSE)
+  cat(sprintf("Saved all %d predictions to src/data/%s\n", nrow(submission), submission_file))
 
   section("Step 7: test accuracy")
   if ("Survived" %in% names(test)) {
@@ -183,8 +188,8 @@ main <- function() {
   } else {
     cat("test.csv has no Survived column (Kaggle keeps the answers), so test accuracy",
         "cannot be computed here.\n")
-    cat("Use the holdout accuracy from Step 4 as the estimate; the real test score",
-        "comes from submitting predictions to Kaggle.\n")
+    cat("Use the holdout accuracy from Step 4 as the estimate. The real test score comes from",
+        sprintf("uploading src/data/%s to Kaggle (score in README).\n", submission_file))
   }
 }
 

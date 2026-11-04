@@ -84,6 +84,26 @@ docker run --rm titanic-r
 
 The first build downloads the R image and installs `dplyr` (fixed versions from a dated CRAN snapshot), which takes a few minutes.
 
+## Optional: get the Kaggle submission files
+
+Both scripts save their test predictions as a Kaggle submission file (`PassengerId,Survived`): `submission_python.csv` and `submission_r.csv`. With the plain `docker run` above the file is deleted along with the container when it exits. To keep it, share `src/data` with the container when you run it:
+
+macOS / Linux:
+
+```bash
+docker run --rm -v "$(pwd)/src/data:/app/src/data" titanic-python
+docker run --rm -v "$(pwd)/src/data:/app/src/data" titanic-r
+```
+
+Windows (PowerShell):
+
+```powershell
+docker run --rm -v "${PWD}/src/data:/app/src/data" titanic-python
+docker run --rm -v "${PWD}/src/data:/app/src/data" titanic-r
+```
+
+The files show up in `src/data` (ignored by git). To score one, open <https://www.kaggle.com/competitions/titanic/submit>, upload the file and click **Submit**.
+
 ## What the output shows
 
 Both scripts print the same steps:
@@ -112,12 +132,17 @@ Both scripts print the same steps:
 | Holdout accuracy (20%) | 0.838 | 0.843 |
 | Training accuracy (all 891 rows) | 0.838 | 0.838 |
 | Test passengers predicted to survive | 168 of 418 | 170 of 418 |
+| **Test accuracy (Kaggle score)** | **0.770** | **0.770** |
 
 The two holdout sets are not the same passengers (each language splits with its own random number generator), so the numbers differ slightly.
 
 ### About test accuracy
 
-Kaggle's `test.csv` does not include the `Survived` column; Kaggle keeps those answers to score submissions. So the scripts cannot compute accuracy on `test.csv` and say so in the output. The holdout accuracy from step 4 is the estimate of how the model does on new passengers. If you run the scripts with a `test.csv` that does have a `Survived` column, they print the real test accuracy.
+Kaggle's `test.csv` does not include the `Survived` column; Kaggle keeps those answers to score submissions. So the scripts cannot compute accuracy on `test.csv` themselves and say so in the output. To get the real test accuracy, I uploaded both submission files to Kaggle: each scored **0.77033** (322 of 418 passengers right). The two models disagree on only 2 passengers and end up with the same number correct.
+
+The test score is lower than the holdout score (about 0.84). That gap is common on this competition: the holdout set is only about 180 passengers, so its accuracy moves a few points depending on which passengers land in it.
+
+If you run the scripts with a `test.csv` that does have a `Survived` column, they print the test accuracy directly.
 
 ## Repo layout
 
@@ -127,7 +152,7 @@ Kaggle's `test.csv` does not include the `Survived` column; Kaggle keeps those a
 ├── CODEOWNERS
 ├── README.md
 └── src
-    ├── data/                  # put train.csv and test.csv here (not committed)
+    ├── data/                  # train.csv and test.csv go here; submission files are saved here (not committed)
     ├── python
     │   ├── Dockerfile
     │   ├── requirements.txt   # pinned package versions
